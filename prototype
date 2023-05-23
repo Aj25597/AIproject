@@ -1,0 +1,35 @@
+import openai
+import pandas as pd
+
+openai.api_key = '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'
+
+emails_df = pd.read_csv('emails.csv')
+
+original_emails = emails_df['Content']
+summaries = []
+
+print("Original Emails:\n")
+for index, email in enumerate(original_emails):
+    print(f"Email {index+1}:")
+    print(email)
+    print()
+
+    response = openai.Completion.create(
+        engine='davinci',
+        prompt=email,
+        max_tokens=100,
+        n=1,
+        stop=None,
+        temperature=0.3,
+        top_p=0.8,
+        frequency_penalty=0.2,
+        presence_penalty=0.2
+    )
+    summary = response.choices[0].text.strip()
+    summaries.append(summary)
+
+print("Summaries:\n")
+for index, summary in enumerate(summaries):
+    print(f"Summary for Email {index+1}:")
+    print(summary)
+    print()
