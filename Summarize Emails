@@ -1,0 +1,27 @@
+import openai
+import pandas as pd
+
+openai.api_key = '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'
+
+emails_df = pd.read_csv('emails.csv')
+original_emails = emails_df['Content']
+summaries = []
+
+for email in original_emails:
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant. Summarize the following email."},
+        {"role": "user", "content": email}
+    ]
+
+    response = openai.ChatCompletion.create(
+        model='gpt-3.5-turbo',
+        messages=messages,
+        max_tokens=100
+    )
+
+    summary = response['choices'][0]['message']['content']
+    summaries.append(summary)
+
+# Now, you have your summaries
+for i, summary in enumerate(summaries):
+    print(f"Summary for Email {i+1}: {summary}")
