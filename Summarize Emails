@@ -5,11 +5,11 @@ openai.api_key = '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'
 
 emails_df = pd.read_csv('emails.csv')
 original_emails = emails_df['Content']
-summaries = []
+tasks = []
 
 for email in original_emails:
     messages = [
-        {"role": "system", "content": "You are a helpful assistant. Summarize the following email."},
+        {"role": "system", "content": "You are a helpful assistant. Convert the following email into a task for a to-do list and suggest a priority level (high, medium, low)."},
         {"role": "user", "content": email}
     ]
 
@@ -19,9 +19,9 @@ for email in original_emails:
         max_tokens=100
     )
 
-    summary = response['choices'][0]['message']['content']
-    summaries.append(summary)
+    task = response['choices'][0]['message']['content']
+    tasks.append(task)
 
-# Now, you have your summaries
-for i, summary in enumerate(summaries):
-    print(f"Summary for Email {i+1}: {summary}")
+# Now, you have your tasks
+for i, task in enumerate(tasks):
+    print(f"Task {i+1}: {task}")
