@@ -1,13 +1,24 @@
 import openai
 import pandas as pd
+from collections import Counter
 
-openai.api_key = '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'
+openai.api_key = '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'
 
 emails_df = pd.read_csv('emails.csv')
 original_emails = emails_df['Content']
-tasks = []
+email_subjects = emails_df['Subject']
 
-for email in original_emails:
+tasks = []
+common_subjects = []
+
+# Find common subjects
+subject_counts = Counter(email_subjects)
+for subject, count in subject_counts.most_common():
+    if count > 1:
+        common_subjects.append(subject)
+
+# Process emails and create tasks
+for email, subject in zip(original_emails, email_subjects):
     messages = [
         {"role": "system", "content": "You are a helpful assistant. Convert the following email into a task for a to-do list and suggest a priority level (high, medium, low)."},
         {"role": "user", "content": email}
@@ -20,8 +31,14 @@ for email in original_emails:
     )
 
     task = response['choices'][0]['message']['content']
+   
+    # Check if the subject is common among the emails
+    if subject in common_subjects:
+        task += f" [Subject: {subject}]"
+
     tasks.append(task)
 
-# Now, you have your tasks
+# Now, you have your tasks and the tagged common subjects
 for i, task in enumerate(tasks):
     print(f"Task {i+1}: {task}")
+    print(" ")
