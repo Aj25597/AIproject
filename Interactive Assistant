@@ -43,6 +43,11 @@ for i, task in enumerate(tasks):
     print(f"Task {i+1}: {task}")
     print(" ")
 
+# Concatenate tasks and emails into a single string
+task_text = "\n".join(tasks)
+email_text = "\n".join(original_emails)
+all_text = task_text + "\n" + email_text
+
 # Interactive loop to ask questions
 while True:
     question = input("Enter your question (or 'quit' to exit): ")
@@ -50,7 +55,10 @@ while True:
         break
     
     # Add user question to messages
-    messages.append({"role": "user", "content": question})
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant that can answer questions about tasks and emails."},
+        {"role": "user", "content": all_text + "\nUser Question: " + question}
+    ]
 
     # Generate AI response
     response = openai.ChatCompletion.create(
