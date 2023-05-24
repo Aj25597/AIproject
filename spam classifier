@@ -1,0 +1,53 @@
+import openai
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+openai.api_key = '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'
+
+# Load the CSV data
+emails_df = pd.read_csv('emails.csv')
+original_emails = emails_df['Content']
+email_subjects = emails_df['Subject']
+
+# Load the CSV file with spam labels
+spam_labels_df = pd.read_csv('spam_labels.csv')
+email_labels = spam_labels_df['Spam']
+
+tasks = []
+spam_predictions = []
+
+# Train a spam classifier
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(original_emails)
+y = email_labels
+classifier = MultinomialNB()
+classifier.fit(X, y)
+
+# Process emails and create tasks
+for email, subject in zip(original_emails, email_subjects):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant. Convert the following email into a task for a to-do list and suggest a priority level (high, medium, low)."},
+        {"role": "user", "content": email}
+    ]
+
+    response = openai.ChatCompletion.create(
+        model='gpt-3.5-turbo',
+        messages=messages,
+        max_tokens=100
+    )
+
+    task = response['choices'][0]['message']['content']
+
+    # Classify email as spam or not
+    email_features = vectorizer.transform([email])
+    spam_prediction = classifier.predict(email_features)[0]
+
+    tasks.append(task)
+    spam_predictions.append(spam_prediction)
+
+# Now, you have your tasks and spam predictions
+for i, (task, spam_prediction) in enumerate(zip(tasks, spam_predictions)):
+    print(f"Task {i+1}: {task}")
+    print(f"Spam Prediction: {spam_prediction}")
+    print()
