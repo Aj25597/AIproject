@@ -48,31 +48,8 @@ def execute_script():
 
         tasks.append(task)
 
-    # Concatenate tasks and emails into a single string
-    task_text = "\n".join(tasks)
-    email_text = "\n".join(original_emails)
-    all_text = task_text + "\n" + email_text
-
-    # Get user question from the request payload
-    user_question = request.form['question']
-
-    # Add user question to messages
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant that can answer questions about tasks and emails."},
-        {"role": "user", "content": all_text + "\nUser Question: " + user_question}
-    ]
-
-    # Generate AI response
-    response = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo',
-        messages=messages,
-        max_tokens=1000
-    )
-
-    answer = response['choices'][0]['message']['content']
-    
-    # Return the AI response as a JSON object
-    return jsonify({'answer': answer})
+    # Return the tasks as a JSON response
+    return jsonify({'tasks': tasks})
 
 if __name__ == '__main__':
     app.run(port=3000)
